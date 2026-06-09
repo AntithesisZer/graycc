@@ -1,0 +1,8 @@
+CompileFlags:
+    Add:
+        - "-stdlib=libc++"
+        - "-isystem"
+        - "/usr/local/llvm-22.1.7/include/c++/v1"
+
+Index:
+    Background: Build
