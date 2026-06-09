@@ -1,7 +1,7 @@
 ---
-BaseOnStyle: LLVM
+BasedOnStyle: LLVM
 Language: Cpp
-Standard: Lastest
+Standard: Latest
 
 UseTab: Never
 IndentWidth: 4
@@ -12,12 +12,13 @@ NamespaceIndentation: None
 ColumnLimit: 100
 AlignAfterOpenBracket: Align
 AllowShortFunctionsOnASingleLine: Inline
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: Never
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
 AlignConsecutiveAssignments: None
 AlignConsecutiveDeclarations: None
 
 BreakBeforeBraces: Attach
+DerivePointerAlignment: false
 PointerAlignment: Left
 
 SpaceBeforeAssignmentOperators: true
