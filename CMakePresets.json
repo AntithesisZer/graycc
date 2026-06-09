@@ -1,0 +1,60 @@
+{
+    "version": 11,
+    "cmakeMinimumRequired": {
+        "major": 4,
+        "minor": 3,
+        "patch": 2
+    },
+    "configurePresets": [
+        {
+            "name": "debug",
+            "displayName": "debugConfig",
+            "description": "Debug build",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin",
+
+                "CMAKE_C_STANDARD": "17",
+                "CMAKE_C_STANDARD_REQUIRED": "ON",
+                "CMAKE_C_EXTENSIONS" : "OFF",
+                "CMAKE_C_COMPILER": "clang",
+
+                "CMAKE_CXX_STANDARD": "23",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "CMAKE_CXX_COMPILER": "clang++",
+
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                
+                "CMAKE_LINKER_TYPE": "LLD"
+            }
+        },
+        {
+            "name": "release",
+            "displayName": "releaseConfig",
+            "description": "Release build",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin",
+
+                "CMAKE_C_STANDARD": "17",
+                "CMAKE_C_STANDARD_REQUIRED": "ON",
+                "CMAKE_C_EXTENSIONS" : "OFF",
+                "CMAKE_C_COMPILER": "clang",
+
+                "CMAKE_CXX_STANDARD": "23",
+                "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+                "CMAKE_CXX_EXTENSIONS": "OFF",
+                "CMAKE_CXX_COMPILER": "clang++",
+
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+                
+                "CMAKE_LINKER_TYPE": "LLD"
+            }
+        }
+    ]
+}
