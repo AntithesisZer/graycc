@@ -4,7 +4,7 @@ assert() {
     input="$2"
 
     ../bin/graycc "$input" > tmp.s
-    clang -fuse-ld=lld -o tmp tmp.s
+    clang -fuse-ld=lld -Wl,-z,noexecstack -o tmp tmp.s
     ./tmp
     actual="$?"
 
