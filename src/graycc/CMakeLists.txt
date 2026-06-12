@@ -4,3 +4,7 @@ target_sources(graycc
     PRIVATE
         graycc.cpp
 )
+target_link_libraries(graycc
+    PRIVATE
+        Token
+)
