@@ -12,6 +12,7 @@ int main(int argc, char* argv[]) {
         std::exit(1);
     }
 
+    std::string_view expression = args[1];
     std::vector<Token> tokens = Tokenize(args[1]);
 
     std::println(".intel_syntax noprefix");
@@ -20,8 +21,9 @@ int main(int argc, char* argv[]) {
     std::println("main:");
 
     if (tokens.empty() || tokens[0].kind != TokenKind::TK_NUM) {
-        std::println(stderr, "Error: Expression must start with a number");
-        std::exit(1);
+        // std::println(stderr, "Error: Expression must start with a number");
+        // std::exit(1);
+        error_at(tokens[0].loc, expression, "Expression must start with a number");
     }
     std::println("    mov rax, {}", tokens[0].val);
 
@@ -33,13 +35,15 @@ int main(int argc, char* argv[]) {
         }
 
         if (tok.kind != TokenKind::TK_RESERVED) {
-            std::println(stderr, "Error: Expected operator '{}'", tok.loc);
-            std::exit(1);
+            // std::println(stderr, "Error: Expected operator '{}'", tok.loc);
+            // std::exit(1);
+            error_at(tokens[i].loc, expression, "Expected operator");
         }
 
         if (i + 1 > tokens.size() || tokens[i + 1].kind != TokenKind::TK_NUM) {
-            std::println(stderr, "Error: Expected number after operator '{}'", tokens[i + 1].loc);
-            std::exit(1);
+            // std::println(stderr, "Error: Expected number after operator '{}'", tokens[i + 1].loc);
+            // std::exit(1);
+            error_at(tokens[i + 1].loc, expression, "Expected number after operator");
         }
 
         if (const Token& next_tok = tokens[i + 1]; tok.loc == "+") {
