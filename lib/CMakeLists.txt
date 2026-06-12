@@ -1,2 +1,0 @@
-add_subdirectory(compiled_lib)
-add_subdirectory(header-only)
