@@ -64,3 +64,9 @@ inline auto Tokenize(std::string_view input) -> std::vector<Token> {
     });
     return tokens;
 }
+
+inline auto error_at(std::string_view loc, std::string_view expr, std::string_view info) -> void {
+    std::println(stderr, "{}", expr);
+    std::println(stderr, "{:>{}}^ {}", "", static_cast<std::size_t>(loc.data() - expr.data()), info);
+    std::exit(1);
+}
