@@ -13,7 +13,6 @@ enum class NodeKind : std::uint64_t {
 
 struct alignas(32) Node {
     NodeKind kind;
-    std::uint64_t padding{ 0 };
     alignas(16) union {
         struct {
             Node* lhs;
