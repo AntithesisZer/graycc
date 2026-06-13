@@ -3,6 +3,7 @@
 #include <string_view>
 #include <vector>
 
+#include <AST.hpp>
 #include <Token.hpp>
 
 int main(int argc, char* argv[]) {
