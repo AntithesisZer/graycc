@@ -6,5 +6,6 @@ target_sources(graycc
 )
 target_link_libraries(graycc
     PRIVATE
+        AST
         Token
 )
