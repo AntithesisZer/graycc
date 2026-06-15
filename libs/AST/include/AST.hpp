@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cassert>
 #include <cstdint>
 #include <memory_resource>
 #include <print>
+#include <utility>
 
 enum class NodeKind : std::uint64_t {
     ND_ADD,
@@ -51,41 +53,43 @@ private:
     std::pmr::polymorphic_allocator<Node> m_alloc;
 };
 
-inline auto codegen(const Node* node) -> void {
-    // if (node) {
-    //     std::println(stderr, "Error: nullptr in AST");
-    //     std::exit(1);
-    // }
+inline auto codegen(const Node* node) -> void;
 
-    if (node->kind == NodeKind::ND_NUM) {
-        std::println("    push {}", node->val);
-        return;
-    }
-
+inline auto emit_basic_binary(const Node* node, std::string_view asm_ops) -> void {
     codegen(node->lhs);
     codegen(node->rhs);
-
     std::println("    pop rdi");
     std::println("    pop rax");
+    std::println("    {} rax, rdi", asm_ops);
+    std::println("    push rax");
+}
+
+inline auto codegen(const Node* node) -> void {
+    assert(node != nullptr && "Internal Error: codegen received a nullptr node");
 
     switch (node->kind) {
+    case NodeKind::ND_NUM:
+        std::println("    push {}", node->val);
+        return;
     case NodeKind::ND_ADD:
-        std::println("    add rax, rdi");
+        emit_basic_binary(node, "add");
         break;
     case NodeKind::ND_SUB:
-        std::println("    sub rax, rdi");
+        emit_basic_binary(node, "sub");
         break;
     case NodeKind::ND_MUL:
-        std::println("    imul rax, rdi");
+        emit_basic_binary(node, "imul");
         break;
     case NodeKind::ND_DIV:
+        codegen(node->lhs);
+        codegen(node->rhs);
+        std::println("    pop rdi");
+        std::println("    pop rax");
         std::println("    cqo");
         std::println("    idiv rdi");
+        std::println("    push rax");
         break;
-        // default:
-        //     std::println(stderr, "Error: Invalid kind in AST");
-        //     break;
-        // }
+    default:
+        std::unreachable();
     }
-    std::println("    push rax");
 }
