@@ -1,5 +1,6 @@
 #pragma once
 
+#include <optional>
 #include <span>
 #include <string_view>
 
@@ -74,15 +75,25 @@ private:
     }
 
     auto mul() -> Node* {
-        Node* node = primary();
+        Node* node = unary();
         while (auto op = match("*", "/")) {
             if (*op == "*") {
-                node = m_ctx.make_binary(NodeKind::ND_MUL, node, primary());
+                node = m_ctx.make_binary(NodeKind::ND_MUL, node, unary());
             } else {
-                node = m_ctx.make_binary(NodeKind::ND_DIV, node, primary());
+                node = m_ctx.make_binary(NodeKind::ND_DIV, node, unary());
             }
         }
         return node;
+    }
+
+    auto unary() -> Node* {
+        if (match("+")) {
+            return unary();
+        }
+        if (match("-")) {
+            return m_ctx.make_binary(NodeKind::ND_SUB, m_ctx.make_num(0), unary());
+        }
+        return primary();
     }
 
     auto primary() -> Node* {
