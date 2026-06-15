@@ -29,7 +29,7 @@ inline auto Tokenize(std::string_view input) -> std::vector<Token> {
             continue;
         }
 
-        if (auto ch = input.front(); ch == '+' || ch == '-') {
+        if (auto ch = input.front(); ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '(' || ch == ')') {
             tokens.push_back(Token{
                 .kind = TokenKind::TK_RESERVED,
                 .loc = input.substr(0, 1),
