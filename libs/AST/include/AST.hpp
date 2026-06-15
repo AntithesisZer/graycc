@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory_resource>
+#include <print>
 
 enum class NodeKind : std::uint64_t {
     ND_ADD,
@@ -49,3 +50,42 @@ private:
     std::pmr::monotonic_buffer_resource m_pool;
     std::pmr::polymorphic_allocator<Node> m_alloc;
 };
+
+inline auto codegen(const Node* node) -> void {
+    // if (node) {
+    //     std::println(stderr, "Error: nullptr in AST");
+    //     std::exit(1);
+    // }
+
+    if (node->kind == NodeKind::ND_NUM) {
+        std::println("    push {}", node->val);
+        return;
+    }
+
+    codegen(node->lhs);
+    codegen(node->rhs);
+
+    std::println("    pop rdi");
+    std::println("    pop rax");
+
+    switch (node->kind) {
+    case NodeKind::ND_ADD:
+        std::println("    add rax, rdi");
+        break;
+    case NodeKind::ND_SUB:
+        std::println("    sub rax, rdi");
+        break;
+    case NodeKind::ND_MUL:
+        std::println("    imul rax, rdi");
+        break;
+    case NodeKind::ND_DIV:
+        std::println("    cqo");
+        std::println("    idiv rdi");
+        break;
+        // default:
+        //     std::println(stderr, "Error: Invalid kind in AST");
+        //     break;
+        // }
+    }
+    std::println("    push rax");
+}
