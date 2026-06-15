@@ -36,7 +36,8 @@ private:
         }
     }
 
-    template <typename... Args> auto match(Args... ops) -> std::optional<std::string_view> {
+    template <typename... Args>
+    auto match(Args... ops) -> std::optional<std::string_view> {
         if (current().kind == TokenKind::TK_RESERVED && ((current().loc == ops) || ...)) {
             std::string_view matched_loc = current().loc;
             advance();
