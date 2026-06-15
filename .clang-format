@@ -24,6 +24,9 @@ BreakBeforeBraces: Attach
 DerivePointerAlignment: false
 PointerAlignment: Left
 
+BreakTemplateDeclarations: Yes
+BreakAfterAttributes: Always
+
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
