@@ -29,7 +29,17 @@ inline auto Tokenize(std::string_view input) -> std::vector<Token> {
             continue;
         }
 
-        if (auto ch = input.front(); ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '(' || ch == ')') {
+        if (input.starts_with("==") || input.starts_with("!=") || input.starts_with("<=") || input.starts_with(">=")) {
+            tokens.push_back(Token{
+                .kind = TokenKind::TK_RESERVED,
+                .loc = input.substr(0, 2),
+            });
+            input.remove_prefix(2);
+            continue;
+        }
+
+        if (auto ch = input.front();
+            ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '(' || ch == ')' || ch == '<' || ch == '>') {
             tokens.push_back(Token{
                 .kind = TokenKind::TK_RESERVED,
                 .loc = input.substr(0, 1),
