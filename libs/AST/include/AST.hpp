@@ -11,6 +11,10 @@ enum class NodeKind : std::uint64_t {
     ND_SUB,
     ND_MUL,
     ND_DIV,
+    ND_EQ,
+    ND_NE,
+    ND_LT,
+    ND_LE,
     ND_NUM,
 };
 
@@ -64,6 +68,17 @@ inline auto emit_basic_binary(const Node* node, std::string_view asm_ops) -> voi
     std::println("    push rax");
 }
 
+inline auto emit_compare_binary(const Node* node, std::string_view set_op) -> void {
+    codegen(node->lhs);
+    codegen(node->rhs);
+    std::println("    pop rdi");
+    std::println("    pop rax");
+    std::println("    cmp rax, rdi");
+    std::println("    {} al", set_op);
+    std::println("    movzx rax, al");
+    std::println("    push rax");
+}
+
 inline auto codegen(const Node* node) -> void {
     assert(node != nullptr && "Internal Error: codegen received a nullptr node");
 
@@ -88,6 +103,18 @@ inline auto codegen(const Node* node) -> void {
         std::println("    cqo");
         std::println("    idiv rdi");
         std::println("    push rax");
+        break;
+    case NodeKind::ND_EQ:
+        emit_compare_binary(node, "sete");
+        break;
+    case NodeKind::ND_NE:
+        emit_compare_binary(node, "setne");
+        break;
+    case NodeKind::ND_LT:
+        emit_compare_binary(node, "setl");
+        break;
+    case NodeKind::ND_LE:
+        emit_compare_binary(node, "setle");
         break;
     default:
         std::unreachable();
