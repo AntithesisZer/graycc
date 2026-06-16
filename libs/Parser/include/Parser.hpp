@@ -62,7 +62,37 @@ private:
         return val;
     }
 
-    auto expr() -> Node* {
+    auto expr() -> Node* { return equality(); }
+
+    auto equality() -> Node* {
+        Node* node = relational();
+        while (auto op = match("==", "!=")) {
+            if (*op == "==") {
+                node = m_ctx.make_binary(NodeKind::ND_EQ, node, relational());
+            } else {
+                node = m_ctx.make_binary(NodeKind::ND_NE, node, relational());
+            }
+        }
+        return node;
+    }
+
+    auto relational() -> Node* {
+        Node* node = add();
+        while (auto op = match("<", "<=", ">", ">=")) {
+            if (*op == "<") {
+                node = m_ctx.make_binary(NodeKind::ND_LT, node, add());
+            } else if (*op == "<=") {
+                node = m_ctx.make_binary(NodeKind::ND_LE, node, add());
+            } else if (*op == ">") {
+                node = m_ctx.make_binary(NodeKind::ND_LT, add(), node);
+            } else {
+                node = m_ctx.make_binary(NodeKind::ND_LE, add(), node);
+            }
+        }
+        return node;
+    }
+
+    auto add() -> Node* {
         Node* node = mul();
         while (auto op = match("+", "-")) {
             if (*op == "+") {
