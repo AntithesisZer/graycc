@@ -3,21 +3,31 @@
 #include <optional>
 #include <span>
 #include <string_view>
+#include <vector>
 
 #include <AST.hpp>
 #include <Token.hpp>
+
+struct LVar {
+    std::string_view name;
+    int offset;
+};
 
 class Parser {
 public:
     explicit Parser(std::span<const Token> tokens, ASTContext& ctx, std::string_view expr_str)
         : m_tokens(tokens), m_ctx(ctx), m_expr_str(expr_str) {}
 
-    auto parser() -> Node* {
-        Node* root = expr();
-        if (current().kind != TokenKind::TK_EOF) {
-            error_at(current().loc, m_expr_str, "Extra tokens after valid expression");
+    auto parser() -> std::vector<Node*> {
+        std::vector<Node*> stmts;
+        while (current().kind != TokenKind::TK_EOF) {
+            stmts.push_back(stmt());
         }
-        return root;
+        return stmts;
+    }
+
+    auto get_stack_size() const -> int {
+        return (static_cast<int>(m_locals.size()) * 8 + 15) & ~15;
     }
 
 private:
@@ -25,6 +35,7 @@ private:
     ASTContext& m_ctx;
     std::string_view m_expr_str;
     std::size_t m_cursor{ 0 };
+    std::vector<LVar> m_locals;
 
     [[nodiscard]]
     auto current() const -> const Token& {
@@ -62,7 +73,32 @@ private:
         return val;
     }
 
-    auto expr() -> Node* { return equality(); }
+    auto find_lvar(std::string_view name) -> LVar* {
+        for (auto& var : m_locals) {
+            if (var.name == name) {
+                return &var;
+            }
+        }
+        return nullptr;
+    }
+
+    auto stmt() -> Node* {
+        Node* node = expr();
+        expect(";");
+        return node;
+    }
+
+    auto expr() -> Node* {
+        return assign();
+    }
+
+    auto assign() -> Node* {
+        Node* node = equality();
+        if (match("=")) {
+            node = m_ctx.make_binary(NodeKind::ND_ASSIGN, node, assign());
+        }
+        return node;
+    }
 
     auto equality() -> Node* {
         Node* node = relational();
@@ -131,6 +167,22 @@ private:
             Node* node = expr();
             expect(")");
             return node;
+        }
+
+        if (current().kind == TokenKind::TK_IDENT) {
+            std::string_view name = current().loc;
+            advance();
+
+            LVar* var = find_lvar(name);
+            if (!var) {
+                int offset = (static_cast<int>(m_locals.size()) + 1) * 8;
+                m_locals.push_back(LVar{
+                    .name = name,
+                    .offset = offset,
+                });
+                var = &m_locals.back();
+            }
+            return m_ctx.make_lvar(var->offset);
         }
         return m_ctx.make_num(expect_number());
     }
