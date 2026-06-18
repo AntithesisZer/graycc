@@ -15,6 +15,8 @@ enum class NodeKind : std::uint64_t {
     ND_NE,
     ND_LT,
     ND_LE,
+    ND_ASSIGN,
+    ND_LVAR,
     ND_NUM,
 };
 
@@ -43,6 +45,13 @@ public:
             .val = val,
         };
     }
+    auto make_lvar(std::uint64_t offset) -> Node* {
+        void* mem = m_alloc.allocate(1);
+        return ::new (mem) Node{
+            .kind = NodeKind::ND_LVAR,
+            .val = offset,
+        };
+    }
     auto make_binary(NodeKind kind, Node* lhs, Node* rhs) -> Node* {
         void* mem = m_alloc.allocate(1);
         return ::new (mem) Node{
@@ -58,6 +67,16 @@ private:
 };
 
 inline auto codegen(const Node* node) -> void;
+
+inline auto codegen_lval(const Node* node) -> void {
+    if (node->kind != NodeKind::ND_LVAR) {
+        std::println(stderr, "Error: Left-hand side of assignment is not an lvalue");
+        std::exit(1);
+    }
+    std::println("    mov rax, rbp");
+    std::println("    sub rax, {}", node->val);
+    std::println("    push rax");
+}
 
 inline auto emit_basic_binary(const Node* node, std::string_view asm_ops) -> void {
     codegen(node->lhs);
@@ -85,6 +104,19 @@ inline auto codegen(const Node* node) -> void {
     switch (node->kind) {
     case NodeKind::ND_NUM:
         std::println("    push {}", node->val);
+        return;
+    case NodeKind::ND_LVAR:
+        codegen_lval(node);
+        std::println("    pop rax");
+        std::println("    mov rax, [rax]");
+        return;
+    case NodeKind::ND_ASSIGN:
+        codegen_lval(node->lhs);
+        codegen(node->rhs);
+        std::println("    pop rdi");
+        std::println("    pop rax");
+        std::println("    mov [rax], rdi");
+        std::println("    push rdi");
         return;
     case NodeKind::ND_ADD:
         emit_basic_binary(node, "add");
