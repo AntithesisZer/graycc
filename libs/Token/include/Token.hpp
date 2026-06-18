@@ -8,6 +8,7 @@
 
 enum class TokenKind : std::uint64_t {
     TK_RESERVED,
+    TK_IDENT,
     TK_NUM,
     TK_EOF,
 };
@@ -29,7 +30,8 @@ inline auto Tokenize(std::string_view input) -> std::vector<Token> {
             continue;
         }
 
-        if (input.starts_with("==") || input.starts_with("!=") || input.starts_with("<=") || input.starts_with(">=")) {
+        if (input.starts_with("==") || input.starts_with("!=") ||
+            input.starts_with("<=") || input.starts_with(">=")) {
             tokens.push_back(Token{
                 .kind = TokenKind::TK_RESERVED,
                 .loc = input.substr(0, 2),
@@ -39,12 +41,27 @@ inline auto Tokenize(std::string_view input) -> std::vector<Token> {
         }
 
         if (auto ch = input.front();
-            ch == '+' || ch == '-' || ch == '*' || ch == '/' || ch == '(' || ch == ')' || ch == '<' || ch == '>') {
+            ch == '+' || ch == '-' || ch == '*' || ch == '/' ||
+            ch == '(' || ch == ')' || ch == '<' || ch == '>' ||
+            ch == '=' || ch == ';') {
             tokens.push_back(Token{
                 .kind = TokenKind::TK_RESERVED,
                 .loc = input.substr(0, 1),
             });
             input.remove_prefix(1);
+            continue;
+        }
+
+        if (auto ch = input.front(); std::isalpha(ch) || ch == '_') {
+            std::size_t len{ 1 };
+            while (len < input.size() && (std::isalnum(input[len]) || input[len] == '_')) {
+                ++len;
+            }
+            tokens.push_back(Token{
+                .kind = TokenKind::TK_IDENT,
+                .loc = input.substr(0, len),
+            });
+            input.remove_prefix(len);
             continue;
         }
 
