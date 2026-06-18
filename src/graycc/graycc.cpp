@@ -20,15 +20,24 @@ int main(int argc, char* argv[]) {
     ASTContext ctx;
     Parser parser(tokens, ctx, expression);
 
-    Node* root = parser.parser();
+    std::vector<Node*> stmts = parser.parser();
+    int stack_size = parser.get_stack_size();
 
     std::println(".intel_syntax noprefix");
     std::println(".globl main");
     std::println();
     std::println("main:");
 
-    codegen(root);
+    std::println("    push rbp");
+    std::println("    mov rbp, rsp");
+    std::println("    sub rsp, {}", stack_size);
 
-    std::println("    pop rax");
+    for (const auto* stmt : stmts) {
+        codegen(stmt);
+        std::println("    pop rax");
+    }
+
+    std::println("    mov rsp, rbp");
+    std::println("    pop rbp");
     std::println("    ret");
 }
