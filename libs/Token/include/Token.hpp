@@ -52,6 +52,15 @@ inline auto Tokenize(std::string_view input) -> std::vector<Token> {
             continue;
         }
 
+        if (input.starts_with("return") && (input.size() == 6 || (!std::isalnum(input[6]) && input[6] != '_'))) {
+            tokens.push_back(Token{
+                .kind = TokenKind::TK_RESERVED,
+                .loc = input.substr(0, 6),
+            });
+            input.remove_prefix(6);
+            continue;
+        }
+
         if (auto ch = input.front(); std::isalpha(ch) || ch == '_') {
             std::size_t len{ 1 };
             while (len < input.size() && (std::isalnum(input[len]) || input[len] == '_')) {
