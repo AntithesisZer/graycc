@@ -18,6 +18,7 @@ enum class NodeKind : std::uint64_t {
     ND_ASSIGN,
     ND_LVAR,
     ND_NUM,
+    ND_RETURN,
 };
 
 struct alignas(32) Node {
@@ -117,6 +118,13 @@ inline auto codegen(const Node* node) -> void {
         std::println("    pop rax");
         std::println("    mov [rax], rdi");
         std::println("    push rdi");
+        return;
+    case NodeKind::ND_RETURN:
+        codegen(node->lhs);
+        std::println("    pop rax");
+        std::println("    mov rsp, rbp");
+        std::println("    pop rbp");
+        std::println("    ret");
         return;
     case NodeKind::ND_ADD:
         emit_basic_binary(node, "add");
