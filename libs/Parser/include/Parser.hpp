@@ -83,6 +83,11 @@ private:
     }
 
     auto stmt() -> Node* {
+        if (match("return")) {
+            Node* node = m_ctx.make_binary(NodeKind::ND_RETURN, expr(), nullptr);
+            expect(";");
+            return node;
+        }
         Node* node = expr();
         expect(";");
         return node;
